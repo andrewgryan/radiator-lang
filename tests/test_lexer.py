@@ -1,36 +1,5 @@
-import itertools
 import pytest
-
-class Lex:
-    def __init__(self, s):
-        self.s = s
-        self.i = 0
-
-    def peek(self):
-        return self.s[self.i]
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        if self.i >= len(self.s):
-            raise StopIteration
-        token = self.s[self.i]
-        self.i += 1
-        return token
-
-
-def lex(s: str):
-    return Lex(s)
-
-
-def peek(tokens):
-    return tokens.peek()
-
-
-def consume(tokens):
-    return next(tokens)
-
+from radiator.lexer import lex, peek, consume
 
 def test_peek():
     tokens = lex("word")
@@ -42,5 +11,6 @@ def test_peek():
     assert peek(tokens) == "r"
     assert consume(tokens) == "r"
     assert consume(tokens) == "d"
+    assert peek(tokens) is None
     with pytest.raises(StopIteration):
         consume(tokens)
