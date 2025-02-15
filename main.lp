@@ -1,3 +1,7 @@
 main {
-	print("Hello, World!");
+	foo()
+}
+
+foo {
+	42
 }
