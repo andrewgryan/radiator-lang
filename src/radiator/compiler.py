@@ -5,6 +5,7 @@
 #     "typer",
 # ]
 # ///
+import radiator
 from enum import Enum
 import typer
 from pydantic import BaseModel
@@ -32,10 +33,15 @@ class Token(BaseModel):
 
 
 @app.command()
-def main(script: str) -> None:
+def main(script: str, out: str = None) -> None:
     with open(script, "r") as stream:
-        tree = parse(lex(stream.read()))
-        print(tree)
+        text = stream.read()
+        code = radiator.compile(text).to_aarch64()
+        if out:
+            with open(out, "w") as stream:
+                stream.write(code)
+        else:
+            print(code)
 
 
 def lex(text):
@@ -55,8 +61,9 @@ def parse(tokens):
 
 def parse_identifier(tokens):
     id = ""
-    token = next(tokens)
-    while token.kind == Kind.letter:
-        id += token.char
-        token = next(tokens)
+    for token in tokens:
+        if token.kind == Kind.letter:
+            id += token.char
+        else:
+            break
     return id, tokens

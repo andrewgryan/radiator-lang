@@ -4,11 +4,11 @@ class IR:
             ".text",
             ".global _start",
             "_start:",
-            "    ldr w8, #93",
-            "    ldr x0, #0",
+            "    ldr w8, =93",
+            "    ldr x0, =0",
             "    svc #0",
         ]
-        return "\n".join(lines)
+        return "\n".join(lines) + "\n"
 
 
 
