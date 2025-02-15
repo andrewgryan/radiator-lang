@@ -9,6 +9,8 @@ from enum import Enum
 import typer
 from pydantic import BaseModel
 
+app = typer.Typer()
+
 
 class Kind(str, Enum):
     newline = "\n"
@@ -29,6 +31,7 @@ class Token(BaseModel):
     kind: Kind
 
 
+@app.command()
 def main(script: str) -> None:
     with open(script, "r") as stream:
         tree = parse(lex(stream.read()))
@@ -57,7 +60,3 @@ def parse_identifier(tokens):
         id += token.char
         token = next(tokens)
     return id, tokens
-
-
-if __name__ == "__main__":
-    typer.run(main)
