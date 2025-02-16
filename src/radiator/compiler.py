@@ -45,41 +45,6 @@ class Function(BaseModel):
     identifier: str
     return_value: int | Call
 
-    @classmethod
-    def parse(cls, tokens: list[Token]) -> Optional[Self]:
-        return_value = 0
-        for token in tokens:
-            if token.kind == Kind.close_brace:
-                break
-            elif token.kind == Kind.digit:
-                return_value *= 10
-                return_value += int(token.char)
-        return cls(identifier="baz", return_value=return_value)
-
-
-class Block(BaseModel):
-    expression: str
-
-
-def parse_identifier(tokens):
-    id = ""
-    while peek(tokens).kind == Kind.letter:
-        id += consume(tokens).char
-    return id
-
-
-def parse_block(tokens):
-    if peek(tokens).kind == Kind.open_brace:
-        consume(tokens)
-    else:
-        return
-    statements = parse_statements(tokens)
-    if peek(tokens).kind == Kind.close_brace:
-        consume(tokens)
-    else:
-        pass  # TODO: syntax error handling
-    return Block(statements=statements)
-
 
 def parse_call(tokens):
     identifier = parse_identifier(tokens)
