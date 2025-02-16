@@ -35,7 +35,7 @@ def parse_function(tokens):
     skip(tokens, is_whitespace)
     block = parse_block(tokens)
     return Function(identifier=identifier, block=block)
-    
+
 
 def parse_identifier(tokens):
     id = ""

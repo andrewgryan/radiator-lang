@@ -6,11 +6,9 @@
 # ]
 # ///
 import radiator
-from radiator.token import Token, Kind, to_token
+from radiator.token import to_token
 from radiator.lexer import Lex
 import typer
-from pydantic import BaseModel
-from typing import Optional, Self
 import subprocess
 
 app = typer.Typer()
