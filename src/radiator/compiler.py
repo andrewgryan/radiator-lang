@@ -86,15 +86,6 @@ def parse_call(tokens):
     return Call(identifier=identifier)
 
 
-def parse_number(tokens):
-    result = 0
-    while peek(tokens).kind == Kind.digit:
-        token = consume(tokens)
-        result *= 10
-        result += int(token.char)
-    return result
-
-
 class AST(BaseModel):
     functions: list[Function]
     entry_point: Call
