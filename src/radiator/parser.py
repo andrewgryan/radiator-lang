@@ -15,6 +15,22 @@ class Block(BaseModel):
     expression: Expression
 
 
+class DataType(BaseModel):
+    signed: bool = True
+    bits: int = 8
+
+
+class Arg(BaseModel):
+    identifier: str
+    dtype: DataType
+
+
+class Signature(BaseModel):
+    identifier: str
+    arg_list: list[Arg]
+    return_type: DataType
+
+
 class Function(BaseModel):
     identifier: str
     block: Block
@@ -49,6 +65,47 @@ def parse_function(tokens):
     skip(tokens, is_whitespace)
     block = parse_block(tokens)
     return Function(identifier=identifier, block=block)
+
+
+def parse_signature(tokens):
+    arg_list = []
+    identifier = parse_identifier(tokens)
+    skip(tokens, is_whitespace)
+    consume(tokens)  # :
+    consume(tokens)  # :
+    skip(tokens, is_whitespace)
+    consume(tokens)  # (
+    while peek(tokens).char != ")":
+        arg = parse_arg(tokens)
+        arg_list.append(arg)
+        skip(tokens, is_whitespace)
+        if peek(tokens).char == ",":
+            consume(tokens)  # ,
+            skip(tokens, is_whitespace)
+
+    consume(tokens)  # )
+    skip(tokens, is_whitespace)
+    consume(tokens)  # -
+    consume(tokens)  # >
+    skip(tokens, is_whitespace)
+
+    return_type = parse_dtype(tokens)
+    return Signature(identifier=identifier, arg_list=arg_list, return_type=return_type)
+
+
+def parse_arg(tokens):
+    identifier = parse_identifier(tokens)
+    skip(tokens, is_whitespace)
+    skip(tokens, lambda tok: tok.char == ":")
+    skip(tokens, is_whitespace)
+    dtype = parse_dtype(tokens)
+    return Arg(identifier=identifier, dtype=dtype)
+
+
+def parse_dtype(tokens):
+    signed = consume(tokens).char == "i"
+    bits = parse_number(tokens)
+    return DataType(signed=signed, bits=bits)
 
 
 def parse_identifier(tokens):

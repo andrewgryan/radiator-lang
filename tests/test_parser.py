@@ -1,7 +1,14 @@
 from radiator.compiler import lex
 from radiator.token import is_whitespace
 from radiator.lexer import peek
-from radiator.parser import skip, parse_expression, parse_block, parse_function, parse_ast
+from radiator.parser import (
+    skip,
+    parse_expression,
+    parse_block,
+    parse_function,
+    parse_ast,
+)
+from radiator import parser
 
 
 def test_skip_whitespace():
@@ -41,6 +48,7 @@ def test_parse_ast():
     assert actual.functions[0].identifier == "main"
     assert actual.functions[0].block.expression.value == 42
 
+
 def test_parse_ast_given_multiple_functions():
     text = """
 main {
@@ -56,3 +64,54 @@ bar {
     assert actual.functions[0].block.expression.value.identifier == "bar"
     assert actual.functions[1].identifier == "bar"
     assert actual.functions[1].block.expression.value == 5
+
+
+def test_parse_signature():
+    text = "name :: () -> u8"
+    actual = parser.parse_signature(lex(text))
+    assert actual.identifier == "name"
+    assert actual.arg_list == []
+    assert actual.return_type.signed == False
+    assert actual.return_type.bits == 8
+
+
+def test_parse_signature_given_args():
+    text = "name :: (x: i32) -> i32"
+    actual = parser.parse_signature(lex(text))
+    assert actual.arg_list[0].identifier == "x"
+    assert actual.arg_list[0].dtype.signed == True
+    assert actual.arg_list[0].dtype.bits == 32
+
+
+def test_parse_signature_given_multiple_args():
+    text = "name :: (x: i32, y: i32) -> i32"
+    actual = parser.parse_signature(lex(text))
+    assert actual.arg_list[0].identifier == "x"
+    assert actual.arg_list[0].dtype.signed == True
+    assert actual.arg_list[0].dtype.bits == 32
+    assert actual.arg_list[1].identifier == "y"
+    assert actual.arg_list[1].dtype.signed == True
+    assert actual.arg_list[1].dtype.bits == 32
+
+
+def test_parse_dtype():
+    text = "u32"
+    actual = parser.parse_dtype(lex(text))
+    assert actual.signed == False
+    assert actual.bits == 32
+
+
+def test_parse_arg_given_u8():
+    text = "x :: u8"
+    actual = parser.parse_arg(lex(text))
+    assert actual.identifier == "x"
+    assert actual.dtype.signed == False
+    assert actual.dtype.bits == 8
+
+
+def test_parse_arg_given_i16():
+    text = "y :: i16"
+    actual = parser.parse_arg(lex(text))
+    assert actual.identifier == "y"
+    assert actual.dtype.signed == True
+    assert actual.dtype.bits == 16
