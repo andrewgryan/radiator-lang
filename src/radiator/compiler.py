@@ -6,33 +6,14 @@
 # ]
 # ///
 import radiator
-from enum import Enum
+from radiator.token import Token, Kind, to_token
+from radiator.lexer import Lex
 import typer
 from pydantic import BaseModel
 from typing import Optional, Self
 import subprocess
 
 app = typer.Typer()
-
-
-class Kind(str, Enum):
-    newline = "\n"
-    semicolon = ";"
-    space = " "
-    doublequote = '"'
-    tab = "\t"
-    letter = "a-z"
-    digit = "0-9"
-    unknown = ""
-    open_brace = "{"
-    close_brace = "}"
-    open_paren = "("
-    close_paren = ")"
-
-
-class Token(BaseModel):
-    char: str
-    kind: Kind
 
 
 @app.command()
@@ -52,16 +33,8 @@ def main(script: str, out: str = None) -> None:
             status = subprocess.call(["ld", "-o", "main", "main.o"])
 
 
-def lex(text):
-    for c in text:
-        if any(k.value == c for k in Kind):
-            yield Token(char=c, kind=Kind(c))
-        elif c.isalpha():
-            yield Token(char=c, kind=Kind.letter)
-        elif c.isdigit():
-            yield Token(char=c, kind=Kind.digit)
-        else:
-            yield Token(char=c, kind=Kind.unknown)
+def lex(s: str):
+    return Lex(s).map(to_token)
 
 
 class Call(BaseModel):
@@ -83,18 +56,17 @@ class Function(BaseModel):
                 return_value += int(token.char)
         return cls(identifier="baz", return_value=return_value)
 
+
 class Block(BaseModel):
     expression: str
 
+
 def parse_identifier(tokens):
     id = ""
-    while True:
-        token = next(tokens)
-        if token.kind == Kind.letter:
-            id += token.char
-        else:
-            break
+    while peek(tokens).kind == Kind.letter:
+        id += consume(tokens).char
     return id
+
 
 def parse_block(tokens):
     token = next(tokens)
@@ -104,7 +76,7 @@ def parse_block(tokens):
     if token.kind != Kind.close_brace:
         pass
     return Block(statements=statements)
-    
+
 
 def parse_call(tokens):
     identifier = parse_identifier(tokens)
@@ -113,7 +85,7 @@ def parse_call(tokens):
 
 def parse_number(tokens):
     result = 0
-    while (token.kind == Kind.digit):
+    while token.kind == Kind.digit:
         result *= 10
         result += int(token.char)
     return result
@@ -125,10 +97,7 @@ class AST(BaseModel):
 
     @classmethod
     def parse(cls, tokens):
-        functions = [
-            Function.parse(tokens),
-            Function(identifier="foo", return_value=5)
-        ]
+        functions = [Function.parse(tokens), Function(identifier="foo", return_value=5)]
         return cls(functions=functions, entry_point=Call(identifier="main"))
 
 

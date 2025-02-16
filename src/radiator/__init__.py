@@ -19,20 +19,14 @@ class IR(BaseModel):
                     "    ldp fp, lr, [sp], #16",
                 ]
             else:
-                dfn += [
-                    f"    mov x0, #{fn.return_value}"
-                ]
+                dfn += [f"    mov x0, #{fn.return_value}"]
             dfn += ["    ret", ""]
             defs += dfn
 
         if isinstance(self.ast.entry_point, radiator.compiler.Call):
-            entry = [
-                f"    bl {self.ast.entry_point.identifier}"
-            ]
+            entry = [f"    bl {self.ast.entry_point.identifier}"]
         else:
-            entry = [
-                "   ldr x0, =0"
-            ]
+            entry = ["   ldr x0, =0"]
 
         lines = [
             ".text",

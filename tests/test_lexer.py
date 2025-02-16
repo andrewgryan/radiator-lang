@@ -1,6 +1,7 @@
 import pytest
 from radiator.lexer import lex, peek, consume
 
+
 def test_peek():
     tokens = lex("word")
     assert peek(tokens) == "w"
