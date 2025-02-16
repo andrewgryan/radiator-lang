@@ -69,12 +69,15 @@ def parse_identifier(tokens):
 
 
 def parse_block(tokens):
-    token = next(tokens)
-    if token.kind == Kind.open_brace:
-        statements = parse_statements(tokens)
-    token = next(tokens)
-    if token.kind != Kind.close_brace:
-        pass
+    if peek(tokens).kind == Kind.open_brace:
+        consume(tokens)
+    else:
+        return
+    statements = parse_statements(tokens)
+    if peek(tokens).kind == Kind.close_brace:
+        consume(tokens)
+    else:
+        pass  # TODO: syntax error handling
     return Block(statements=statements)
 
 
@@ -85,7 +88,8 @@ def parse_call(tokens):
 
 def parse_number(tokens):
     result = 0
-    while token.kind == Kind.digit:
+    while peek(tokens).kind == Kind.digit:
+        token = consume(tokens)
         result *= 10
         result += int(token.char)
     return result
