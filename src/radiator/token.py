@@ -22,7 +22,7 @@ class Token(BaseModel):
     kind: Kind
 
 
-def to_token(text):
+def to_token(c: str):
     if any(k.value == c for k in Kind):
         return Token(char=c, kind=Kind(c))
     elif c.isalpha():
