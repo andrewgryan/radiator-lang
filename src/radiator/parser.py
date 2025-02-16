@@ -1,6 +1,6 @@
 from radiator.lexer import peek, consume
 
 
-def skip(tokens, kind):
-    while peek(tokens).kind == kind:
+def skip(tokens, is_skippable):
+    while is_skippable(peek(tokens)):
         consume(tokens)
