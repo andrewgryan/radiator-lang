@@ -24,14 +24,28 @@ class AST(BaseModel):
     functions: list[Function]
     entry_point: Call
 
-    @classmethod
-    def parse(cls, tokens):
-        functions = []
-        return cls(functions=functions, entry_point=Call(identifier="main"))
+
+def parse(tokens):
+    return parse_ast(tokens)
+
+
+def parse_ast(tokens):
+    functions = []
+    while True:
+        skip(tokens, is_whitespace)
+        function = parse_function(tokens)
+        if isinstance(function, Function):
+            functions.append(function)
+        else:
+            break
+    entry_point = Call(identifier="main")
+    return AST(functions=functions, entry_point=entry_point)
 
 
 def parse_function(tokens):
     identifier = parse_identifier(tokens)
+    if len(identifier) == 0:
+        return
     skip(tokens, is_whitespace)
     block = parse_block(tokens)
     return Function(identifier=identifier, block=block)
@@ -39,7 +53,7 @@ def parse_function(tokens):
 
 def parse_identifier(tokens):
     id = ""
-    while peek(tokens).kind == Kind.letter:
+    while peek(tokens) and peek(tokens).kind == Kind.letter:
         id += consume(tokens).char
     return id
 
@@ -84,5 +98,5 @@ def parse_number(tokens):
 
 
 def skip(tokens, is_skippable):
-    while is_skippable(peek(tokens)):
+    while peek(tokens) and is_skippable(peek(tokens)):
         consume(tokens)

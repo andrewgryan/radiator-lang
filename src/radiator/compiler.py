@@ -33,7 +33,3 @@ def main(script: str, out: str = None) -> None:
 
 def lex(s: str):
     return Lex(s).map(to_token)
-
-
-def parse(tokens):
-    return AST.parse(tokens)

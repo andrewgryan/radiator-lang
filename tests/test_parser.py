@@ -1,7 +1,7 @@
 from radiator.compiler import lex
 from radiator.token import is_whitespace
 from radiator.lexer import peek
-from radiator.parser import skip, parse_expression, parse_block, parse_function
+from radiator.parser import skip, parse_expression, parse_block, parse_function, parse_ast
 
 
 def test_skip_whitespace():
@@ -40,3 +40,19 @@ def test_parse_ast():
     actual = parse_ast(lex(text))
     assert actual.functions[0].identifier == "main"
     assert actual.functions[0].block.expression.value == 42
+
+def test_parse_ast_given_multiple_functions():
+    text = """
+main {
+  bar()
+}
+
+bar {
+  5
+}
+"""
+    actual = parse_ast(lex(text))
+    assert actual.functions[0].identifier == "main"
+    assert actual.functions[0].block.expression.value.identifier == "bar"
+    assert actual.functions[1].identifier == "bar"
+    assert actual.functions[1].block.expression.value == 5

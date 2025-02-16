@@ -10,20 +10,20 @@ class IR(BaseModel):
         defs = []
         for fn in self.ast.functions:
             dfn = [f"{fn.identifier}:"]
-            if isinstance(fn.return_value, radiator.compiler.Call):
+            if isinstance(fn.block.expression.value, radiator.parser.Call):
                 dfn += [
                     "    stp fp, lr, [sp, #-16]!",
                     "    mov fp, sp",
-                    f"    bl {fn.return_value.identifier}",
+                    f"    bl {fn.block.expression.value.identifier}",
                     "    mov sp, fp",
                     "    ldp fp, lr, [sp], #16",
                 ]
             else:
-                dfn += [f"    mov x0, #{fn.return_value}"]
+                dfn += [f"    mov x0, #{fn.block.expression.value}"]
             dfn += ["    ret", ""]
             defs += dfn
 
-        if isinstance(self.ast.entry_point, radiator.compiler.Call):
+        if isinstance(self.ast.entry_point, radiator.parser.Call):
             entry = [f"    bl {self.ast.entry_point.identifier}"]
         else:
             entry = ["   ldr x0, =0"]
@@ -42,5 +42,5 @@ class IR(BaseModel):
 
 def compile(code: str) -> IR:
     tokens = radiator.compiler.lex(code)
-    ast = radiator.compiler.parse(tokens)
+    ast = radiator.parser.parse(tokens)
     return IR(ast=ast)

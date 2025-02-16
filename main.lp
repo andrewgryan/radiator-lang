@@ -1,4 +1,8 @@
 main {
+	bar()
+}
+
+bar {
 	foo()
 }
 
