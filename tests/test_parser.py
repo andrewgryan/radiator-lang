@@ -30,6 +30,13 @@ def test_parse_expression_given_call():
     assert actual.value.identifier == "bar"
 
 
+def test_parse_expression_given_call_arg():
+    text = "bar(42)"
+    actual = parse_expression(lex(text))
+    assert actual.value.identifier == "bar"
+    assert actual.value.args[0].value == 5
+
+
 def test_parse_block():
     text = "{  42  }"
     actual = parse_block(lex(text))
@@ -53,11 +60,11 @@ def test_parse_ast():
 def test_parse_ast_given_multiple_functions():
     text = """
 main :: () -> u8 {
-  bar(5)
+  bar()
 }
 
-bar :: (x: u8) -> u8 {
-  x
+bar :: () -> u8 {
+  5
 }
 """
     actual = parse_ast(lex(text))

@@ -5,6 +5,7 @@ from radiator.token import Kind, is_whitespace
 
 class Call(BaseModel):
     identifier: str
+    args: list[int]
 
 
 class Expression(BaseModel):
@@ -56,7 +57,7 @@ def parse_ast(tokens):
             functions.append(function)
         else:
             break
-    entry_point = Call(identifier="main")
+    entry_point = Call(identifier="main", args=[])
     return AST(functions=functions, entry_point=entry_point)
 
 
@@ -142,7 +143,8 @@ def parse_call(tokens):
     identifier = parse_identifier(tokens)
     consume(tokens)
     consume(tokens)
-    return Call(identifier=identifier)
+    args = []
+    return Call(identifier=identifier, args=args)
 
 
 def parse_number(tokens):
