@@ -32,5 +32,6 @@ def to_token(c: str):
     else:
         return Token(char=c, kind=Kind.unknown)
 
+
 def is_whitespace(token: Token):
     return token.kind in [Kind.space, Kind.tab, Kind.newline]
