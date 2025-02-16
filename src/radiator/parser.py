@@ -3,8 +3,12 @@ from radiator.lexer import peek, consume
 from radiator.token import Kind, is_whitespace
 
 
+class Call(BaseModel):
+    identifier: str
+
+
 class Expression(BaseModel):
-    value: int
+    value: int | Call
 
 
 class Block(BaseModel):
@@ -14,6 +18,16 @@ class Block(BaseModel):
 class Function(BaseModel):
     identifier: str
     block: Block
+
+
+class AST(BaseModel):
+    functions: list[Function]
+    entry_point: Call
+
+    @classmethod
+    def parse(cls, tokens):
+        functions = []
+        return cls(functions=functions, entry_point=Call(identifier="main"))
 
 
 def parse_function(tokens):
@@ -46,8 +60,18 @@ def parse_block(tokens):
 
 
 def parse_expression(tokens):
-    value = parse_number(tokens)
+    if peek(tokens).kind == Kind.digit:
+        value = parse_number(tokens)
+    else:
+        value = parse_call(tokens)
     return Expression(value=value)
+
+
+def parse_call(tokens):
+    identifier = parse_identifier(tokens)
+    consume(tokens)
+    consume(tokens)
+    return Call(identifier=identifier)
 
 
 def parse_number(tokens):

@@ -10,10 +10,16 @@ def test_skip_whitespace():
     assert peek(tokens).char == "a"
 
 
-def test_parse_expression():
+def test_parse_expression_given_number():
     text = "42"
     actual = parse_expression(lex(text))
     assert actual.value == 42
+
+
+def test_parse_expression_given_call():
+    text = "bar()"
+    actual = parse_expression(lex(text))
+    assert actual.value.identifier == "bar"
 
 
 def test_parse_block():

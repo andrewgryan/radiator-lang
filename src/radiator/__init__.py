@@ -1,10 +1,11 @@
 import re
 from pydantic import BaseModel
 import radiator.compiler
+import radiator.parser
 
 
 class IR(BaseModel):
-    ast: radiator.compiler.AST
+    ast: radiator.parser.AST
 
     def to_aarch64(self):
         defs = []

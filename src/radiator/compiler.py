@@ -37,29 +37,5 @@ def lex(s: str):
     return Lex(s).map(to_token)
 
 
-class Call(BaseModel):
-    identifier: str
-
-
-class Function(BaseModel):
-    identifier: str
-    return_value: int | Call
-
-
-def parse_call(tokens):
-    identifier = parse_identifier(tokens)
-    return Call(identifier=identifier)
-
-
-class AST(BaseModel):
-    functions: list[Function]
-    entry_point: Call
-
-    @classmethod
-    def parse(cls, tokens):
-        functions = [Function.parse(tokens), Function(identifier="foo", return_value=5)]
-        return cls(functions=functions, entry_point=Call(identifier="main"))
-
-
 def parse(tokens):
     return AST.parse(tokens)
