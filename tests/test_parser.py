@@ -1,3 +1,4 @@
+import pytest
 from radiator.compiler import lex
 from radiator.token import is_whitespace
 from radiator.lexer import peek
@@ -36,33 +37,33 @@ def test_parse_block():
 
 
 def test_parse_function():
-    text = "main {  42  }"
+    text = "main :: () -> u8 {  42  }"
     actual = parse_function(lex(text))
-    assert actual.identifier == "main"
+    assert actual.signature.identifier == "main"
     assert actual.block.expression.value == 42
 
 
 def test_parse_ast():
-    text = "main {  42  }"
+    text = "main :: () -> u8 {  42  }"
     actual = parse_ast(lex(text))
-    assert actual.functions[0].identifier == "main"
+    assert actual.functions[0].signature.identifier == "main"
     assert actual.functions[0].block.expression.value == 42
 
 
 def test_parse_ast_given_multiple_functions():
     text = """
-main {
-  bar()
+main :: () -> u8 {
+  bar(5)
 }
 
-bar {
-  5
+bar :: (x: u8) -> u8 {
+  x
 }
 """
     actual = parse_ast(lex(text))
-    assert actual.functions[0].identifier == "main"
+    assert actual.functions[0].signature.identifier == "main"
     assert actual.functions[0].block.expression.value.identifier == "bar"
-    assert actual.functions[1].identifier == "bar"
+    assert actual.functions[1].signature.identifier == "bar"
     assert actual.functions[1].block.expression.value == 5
 
 

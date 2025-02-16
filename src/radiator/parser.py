@@ -32,7 +32,7 @@ class Signature(BaseModel):
 
 
 class Function(BaseModel):
-    identifier: str
+    signature: Signature
     block: Block
 
 
@@ -49,6 +49,8 @@ def parse_ast(tokens):
     functions = []
     while True:
         skip(tokens, is_whitespace)
+        if peek(tokens) is None:
+            break
         function = parse_function(tokens)
         if isinstance(function, Function):
             functions.append(function)
@@ -59,12 +61,10 @@ def parse_ast(tokens):
 
 
 def parse_function(tokens):
-    identifier = parse_identifier(tokens)
-    if len(identifier) == 0:
-        return
+    signature = parse_signature(tokens)
     skip(tokens, is_whitespace)
     block = parse_block(tokens)
-    return Function(identifier=identifier, block=block)
+    return Function(signature=signature, block=block)
 
 
 def parse_signature(tokens):
@@ -83,10 +83,10 @@ def parse_signature(tokens):
             consume(tokens)  # ,
             skip(tokens, is_whitespace)
 
-    consume(tokens)  # )
+    assert consume(tokens).char == ")"
     skip(tokens, is_whitespace)
-    consume(tokens)  # -
-    consume(tokens)  # >
+    assert consume(tokens).char == "-"
+    assert consume(tokens).char == ">"
     skip(tokens, is_whitespace)
 
     return_type = parse_dtype(tokens)

@@ -9,7 +9,7 @@ class IR(BaseModel):
     def to_aarch64(self):
         defs = []
         for fn in self.ast.functions:
-            dfn = [f"{fn.identifier}:"]
+            dfn = [f"{fn.signature.identifier}:"]
             if isinstance(fn.block.expression.value, radiator.parser.Call):
                 dfn += [
                     "    stp fp, lr, [sp, #-16]!",

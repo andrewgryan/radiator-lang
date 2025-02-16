@@ -5,11 +5,11 @@ import radiator.compiler
 
 def test_compile_given_main_function():
     program = """
-main {
+main :: () -> u8 {
   bar()
 }
 
-bar {
+bar :: () -> u8 {
   5
 }
 """
