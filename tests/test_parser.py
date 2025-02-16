@@ -33,3 +33,10 @@ def test_parse_function():
     actual = parse_function(lex(text))
     assert actual.identifier == "main"
     assert actual.block.expression.value == 42
+
+
+def test_parse_ast():
+    text = "main {  42  }"
+    actual = parse_ast(lex(text))
+    assert actual.functions[0].identifier == "main"
+    assert actual.functions[0].block.expression.value == 42
