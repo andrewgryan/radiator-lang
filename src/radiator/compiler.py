@@ -10,12 +10,13 @@ from radiator.token import to_token
 from radiator.lexer import Lex
 import typer
 import subprocess
+from typing import Annotated
 
 app = typer.Typer()
 
 
 @app.command()
-def main(script: str, out: str = None) -> None:
+def main(script: str, out: Annotated[str, typer.Option("-o", "--out")] = None) -> None:
     with open(script, "r") as stream:
         text = stream.read()
         code = radiator.compile(text).to_aarch64()
