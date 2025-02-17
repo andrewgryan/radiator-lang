@@ -34,7 +34,7 @@ def test_parse_expression_given_call_arg():
     text = "bar(42)"
     actual = parse_expression(lex(text))
     assert actual.value.identifier == "bar"
-    assert actual.value.args[0].value == 5
+    assert actual.value.args[0] == 42
 
 
 def test_parse_block():

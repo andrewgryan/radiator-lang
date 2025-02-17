@@ -138,13 +138,25 @@ def parse_expression(tokens):
         value = parse_call(tokens)
     return Expression(value=value)
 
+def assert_next(tokens, char):
+    found = peek(tokens).char
+    assert found == char, f"Expected '{char}' found '{found}' instead."
 
 def parse_call(tokens):
     identifier = parse_identifier(tokens)
+    assert_next(tokens, "(")
     consume(tokens)
+    args = parse_call_args(tokens)
+    assert_next(tokens, ")")
     consume(tokens)
-    args = []
     return Call(identifier=identifier, args=args)
+
+
+def parse_call_args(tokens):
+    args = []
+    if peek(tokens).kind == Kind.digit:
+        args.append(parse_number(tokens))
+    return args
 
 
 def parse_number(tokens):
