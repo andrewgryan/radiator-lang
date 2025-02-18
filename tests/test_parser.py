@@ -123,3 +123,11 @@ def test_parse_arg_given_i16():
     assert actual.identifier == "y"
     assert actual.dtype.signed == True
     assert actual.dtype.bits == 16
+
+
+def test_parse_expression_given_addition():
+    text = "a + b"
+    actual = parser.parse_expression(lex(text))
+    assert actual.op == "+"
+    assert actual.lhs == "a"
+    assert actual.rhs == "b"

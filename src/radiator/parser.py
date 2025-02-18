@@ -135,12 +135,16 @@ def parse_expression(tokens):
     if peek(tokens).kind == Kind.digit:
         value = parse_number(tokens)
     else:
-        value = parse_call(tokens)
+        value = parse_identifier(tokens)
+        if peek(tokens).kind == Kind.open_paren:
+            print("DEBUG")
     return Expression(value=value)
+
 
 def assert_next(tokens, char):
     found = peek(tokens).char
     assert found == char, f"Expected '{char}' found '{found}' instead."
+
 
 def parse_call(tokens):
     identifier = parse_identifier(tokens)
