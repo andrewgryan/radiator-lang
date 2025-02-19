@@ -135,9 +135,7 @@ def parse_expression(tokens):
     if peek(tokens).kind == Kind.digit:
         value = parse_number(tokens)
     else:
-        value = parse_identifier(tokens)
-        if peek(tokens).kind == Kind.open_paren:
-            print("DEBUG")
+        value = parse_call(tokens)
     return Expression(value=value)
 
 
