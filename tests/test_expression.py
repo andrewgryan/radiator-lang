@@ -1,8 +1,9 @@
 import pytest
 from radiator.lexer import lex
 from radiator.expression import (
-    parse_addition,
+    parse_expression,
     parse_operator,
+    parse_atom
 )
 
 
@@ -14,6 +15,17 @@ from radiator.expression import (
 )
 def test_parse_operator(text, expected):
     assert parse_operator(lex(text)).model_dump() == expected
+
+
+@pytest.mark.parametrize(
+    "text,expected", [
+        ("a", "a"),
+        ("foo", "foo"),
+        ("123", 123),
+    ]
+)
+def test_parse_atom(text, expected):
+    assert parse_atom(lex(text)) == expected
 
 
 @pytest.mark.parametrize(
@@ -68,10 +80,17 @@ def test_parse_operator(text, expected):
             },
             id="a * b + c",
         ),
+        pytest.param(
+            "1 + bar", {
+                "lhs": 1,
+                "op": {"associative": "both", "operation": "+", "precedence": 1},
+                "rhs": "bar"
+            }
+        )
     ],
 )
-def test_parse_addition_associative(text, expected):
-    actual = parse_addition(lex(text))
+def test_parse_expression_associative(text, expected):
+    actual = parse_expression(lex(text))
     if isinstance(actual, str):
         assert actual == expected
     else:
