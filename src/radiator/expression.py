@@ -13,6 +13,10 @@ class Operator(BaseModel):
     def addition(cls):
         return cls(operation="+", associative="both", precedence=1)
 
+    @classmethod
+    def multiplication(cls):
+        return cls(operation="*", associative="both", precedence=2)
+
 
 class BinaryOperation(BaseModel):
     lhs: Union[int, str, "BinaryOperation"]
@@ -28,6 +32,8 @@ def parse_operator(tokens):
     c = consume(tokens).char
     if c == "+":
         return Operator.addition()
+    elif c == "*":
+        return Operator.multiplication()
     else:
         raise Exception(f"unrecognised operator: '{c}'")
 

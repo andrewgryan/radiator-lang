@@ -7,7 +7,10 @@ from radiator.expression import (
 
 
 @pytest.mark.parametrize(
-    "text,expected", [("+", {"associative": "both", "operation": "+", "precedence": 1})]
+    "text,expected", [
+        ("+", {"associative": "both", "operation": "+", "precedence": 1}),
+        ("*", {"associative": "both", "operation": "*", "precedence": 2}),
+    ]
 )
 def test_parse_operator(text, expected):
     assert parse_operator(lex(text)).model_dump() == expected
