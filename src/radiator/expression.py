@@ -4,10 +4,20 @@ from radiator.lexer import peek, consume, skip
 from radiator.token import is_whitespace, Kind
 
 
+class Operator(BaseModel):
+    operation: str
+    associative: str
+    precedence: int
+
+    @classmethod
+    def addition(cls):
+        return cls(operation="+", associative="both", precedence=1)
+
+
 class BinaryOperation(BaseModel):
     lhs: Union[int, str, "BinaryOperation"]
     rhs: Union[int, str, "BinaryOperation"]
-    op: str
+    op: Operator
 
 
 def parse_atom(tokens):
@@ -15,7 +25,11 @@ def parse_atom(tokens):
 
 
 def parse_operator(tokens):
-    return consume(tokens).char
+    c = consume(tokens).char
+    if c == "+":
+        return Operator.addition()
+    else:
+        raise Exception(f"unrecognised operator: '{c}'")
 
 
 def parse_addition(tokens):
@@ -25,8 +39,6 @@ def parse_addition(tokens):
         op = parse_operator(tokens)
         skip(tokens, is_whitespace)
         rhs = parse_addition(tokens)
-        return BinaryOperation(
-            lhs=lhs, op=op, rhs=rhs
-        )
+        return BinaryOperation(lhs=lhs, op=op, rhs=rhs)
     else:
         return lhs

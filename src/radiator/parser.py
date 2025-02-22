@@ -8,14 +8,6 @@ class Call(BaseModel):
     args: list[int]
 
 
-class Atom(BaseModel):
-    value: int | str
-
-
-class Operation(BaseModel):
-    pass
-
-
 class Expression(BaseModel):
     value: int | Call
 

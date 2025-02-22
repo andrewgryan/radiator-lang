@@ -1,20 +1,43 @@
+import pytest
 from radiator.lexer import lex
-from radiator.expression import parse_addition
+from radiator.expression import (
+    parse_addition,
+    parse_operator,
+)
 
 
-def test_parse_addition_basic():
-    text = "a + b"
+@pytest.mark.parametrize(
+    "text,expected", [("+", {"associative": "both", "operation": "+", "precedence": 1})]
+)
+def test_parse_operator(text, expected):
+    assert parse_operator(lex(text)).model_dump() == expected
+
+
+@pytest.mark.parametrize(
+    "text,expected",
+    [
+        pytest.param(
+            "a + b + c",
+            {
+                "lhs": "a",
+                "op": {"associative": "both", "operation": "+", "precedence": 1},
+                "rhs": {
+                    "lhs": "b",
+                    "op": {"associative": "both", "operation": "+", "precedence": 1},
+                    "rhs": "c",
+                },
+            },
+        ),
+        pytest.param(
+            "a + b",
+            {
+                "lhs": "a",
+                "op": {"associative": "both", "operation": "+", "precedence": 1},
+                "rhs": "b",
+            },
+        ),
+    ],
+)
+def test_parse_addition_associative(text, expected):
     actual = parse_addition(lex(text))
-    assert actual.lhs == "a"
-    assert actual.op == "+"
-    assert actual.rhs == "b"
-
-
-def test_parse_addition_associative():
-    text = "a + b + c"
-    actual = parse_addition(lex(text))
-    assert actual.lhs == "a"
-    assert actual.op == "+"
-    assert actual.rhs.lhs == "b"
-    assert actual.rhs.op == "+"
-    assert actual.rhs.rhs == "c"
+    assert actual.model_dump() == expected
