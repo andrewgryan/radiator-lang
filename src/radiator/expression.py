@@ -4,6 +4,10 @@ from radiator.lexer import peek, consume, skip
 from radiator.token import is_whitespace, Kind
 
 
+MIN_PRECEDENCE = 1
+MAX_PRECEDENCE = 3
+
+
 class Operator(BaseModel):
     operation: str
     associative: str
@@ -30,6 +34,9 @@ def parse_atom(tokens):
 
 def parse_operator(tokens):
     c = consume(tokens).char
+    return to_operator(c)
+
+def to_operator(c):
     if c == "+":
         return Operator.addition()
     elif c == "*":
@@ -38,13 +45,22 @@ def parse_operator(tokens):
         raise Exception(f"unrecognised operator: '{c}'")
 
 
-def parse_addition(tokens):
-    lhs = parse_atom(tokens)
+def parse_addition(tokens, precedence=MIN_PRECEDENCE):
+    if precedence >= MAX_PRECEDENCE:
+        skip(tokens, is_whitespace)
+        atom = parse_atom(tokens)
+        return atom
+
+    lhs = parse_addition(tokens, precedence + 1)
     skip(tokens, is_whitespace)
     if peek(tokens) and peek(tokens).kind == Kind.operator:
-        op = parse_operator(tokens)
         skip(tokens, is_whitespace)
-        rhs = parse_addition(tokens)
-        return BinaryOperation(lhs=lhs, op=op, rhs=rhs)
+        op = to_operator(peek(tokens).char)
+        if op.precedence == precedence:
+            op = parse_operator(tokens)
+            rhs = parse_addition(tokens, precedence=precedence)
+            return BinaryOperation(lhs=lhs, op=op, rhs=rhs)
+        else:
+            return lhs
     else:
         return lhs

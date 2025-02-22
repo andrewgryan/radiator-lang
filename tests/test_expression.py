@@ -20,6 +20,11 @@ def test_parse_operator(text, expected):
     "text,expected",
     [
         pytest.param(
+            "a",
+            "a",
+            id="a",
+        ),
+        pytest.param(
             "a + b + c",
             {
                 "lhs": "a",
@@ -30,6 +35,7 @@ def test_parse_operator(text, expected):
                     "rhs": "c",
                 },
             },
+            id="a + b + c",
         ),
         pytest.param(
             "a + b",
@@ -38,9 +44,35 @@ def test_parse_operator(text, expected):
                 "op": {"associative": "both", "operation": "+", "precedence": 1},
                 "rhs": "b",
             },
+            id="a + b",
+        ),
+        pytest.param(
+            "a * b",
+            {
+                "lhs": "a",
+                "op": {"associative": "both", "operation": "*", "precedence": 2},
+                "rhs": "b",
+            },
+            id="a * b",
+        ),
+        pytest.param(
+            "a * b + c",
+            {
+                "lhs": {
+                    "lhs": "a",
+                    "op": {"associative": "both", "operation": "*", "precedence": 2},
+                    "rhs": "b"
+                },
+                "op": {"associative": "both", "operation": "+", "precedence": 1},
+                "rhs": "c",
+            },
+            id="a * b + c",
         ),
     ],
 )
 def test_parse_addition_associative(text, expected):
     actual = parse_addition(lex(text))
-    assert actual.model_dump() == expected
+    if isinstance(actual, str):
+        assert actual == expected
+    else:
+        assert actual.model_dump() == expected
