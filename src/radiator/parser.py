@@ -8,6 +8,14 @@ class Call(BaseModel):
     args: list[int]
 
 
+class Atom(BaseModel):
+    value: int | str
+
+
+class Operation(BaseModel):
+    pass
+
+
 class Expression(BaseModel):
     value: int | Call
 
@@ -135,7 +143,11 @@ def parse_expression(tokens):
     if peek(tokens).kind == Kind.digit:
         value = parse_number(tokens)
     else:
-        value = parse_call(tokens)
+        identifier = parse_identifier(tokens)
+        if peek(tokens).char == "(":
+            value = parse_call(identifier, tokens)
+        else:
+            value = identifier
     return Expression(value=value)
 
 
@@ -144,8 +156,7 @@ def assert_next(tokens, char):
     assert found == char, f"Expected '{char}' found '{found}' instead."
 
 
-def parse_call(tokens):
-    identifier = parse_identifier(tokens)
+def parse_call(identifier, tokens):
     assert_next(tokens, "(")
     consume(tokens)
     args = parse_call_args(tokens)
