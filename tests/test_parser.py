@@ -1,7 +1,6 @@
 import pytest
-from radiator.compiler import lex
 from radiator.token import is_whitespace
-from radiator.lexer import peek
+from radiator.lexer import peek, lex
 from radiator.parser import (
     skip,
     parse_expression,

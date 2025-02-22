@@ -15,6 +15,7 @@ class Kind(str, Enum):
     close_brace = "}"
     open_paren = "("
     close_paren = ")"
+    operator = "+-/*^"
 
 
 class Token(BaseModel):
@@ -25,6 +26,8 @@ class Token(BaseModel):
 def to_token(c: str):
     if any(k.value == c for k in Kind):
         return Token(char=c, kind=Kind(c))
+    elif c in Kind.operator:
+        return Token(char=c, kind=Kind.operator)
     elif c.isalpha():
         return Token(char=c, kind=Kind.letter)
     elif c.isdigit():

@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-import radiator.compiler
+import radiator.lexer
 import radiator.parser
 
 
@@ -41,6 +41,6 @@ class IR(BaseModel):
 
 
 def compile(code: str) -> IR:
-    tokens = radiator.compiler.lex(code)
+    tokens = radiator.lexer.lex(code)
     ast = radiator.parser.parse(tokens)
     return IR(ast=ast)

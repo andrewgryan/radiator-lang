@@ -1,3 +1,6 @@
+from radiator.token import to_token
+
+
 class Lex:
     def __init__(self, s):
         self.s = s
@@ -44,7 +47,7 @@ class LexMap:
 
 
 def lex(s: str):
-    return Lex(s)
+    return Lex(s).map(to_token)
 
 
 def peek(tokens):
@@ -53,3 +56,8 @@ def peek(tokens):
 
 def consume(tokens):
     return next(tokens)
+
+
+def skip(tokens, is_skippable):
+    while peek(tokens) and is_skippable(peek(tokens)):
+        consume(tokens)

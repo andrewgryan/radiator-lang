@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from radiator.lexer import peek, consume
+from radiator.lexer import peek, consume, skip
 from radiator.token import Kind, is_whitespace
 
 
@@ -179,8 +179,3 @@ def parse_number(tokens):
         result *= 10
         result += int(token.char)
     return result
-
-
-def skip(tokens, is_skippable):
-    while peek(tokens) and is_skippable(peek(tokens)):
-        consume(tokens)

@@ -6,8 +6,6 @@
 # ]
 # ///
 import radiator
-from radiator.token import to_token
-from radiator.lexer import Lex
 import typer
 import subprocess
 from typing import Annotated
@@ -30,7 +28,3 @@ def main(script: str, out: Annotated[str, typer.Option("-o", "--out")] = None) -
         status = subprocess.call(["as", "-o", "main.o", out])
         if status == 0:
             status = subprocess.call(["ld", "-o", "main", "main.o"])
-
-
-def lex(s: str):
-    return Lex(s).map(to_token)

@@ -1,6 +1,5 @@
 import pytest
 import radiator
-import radiator.compiler
 
 
 def test_compile_given_main_function():
