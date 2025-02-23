@@ -159,8 +159,14 @@ def parse_call(identifier, tokens):
 
 def parse_call_args(tokens):
     args = []
-    if peek(tokens).kind == Kind.digit:
-        args.append(parse_number(tokens))
+    while peek(tokens):
+        if peek(tokens).kind == Kind.digit:
+            args.append(parse_number(tokens))
+            if peek(tokens).kind == Kind.comma:
+                consume(tokens)
+                skip(tokens, is_whitespace)
+        else:
+            break
     return args
 
 

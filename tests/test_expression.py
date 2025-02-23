@@ -22,10 +22,16 @@ def test_parse_operator(text, expected):
         ("a", "a"),
         ("foo", "foo"),
         ("123", 123),
+        ("fn()", {"args": [], "identifier": "fn"}),
+        ("foo(1, 2)", {"args": [1, 2], "identifier": "foo"})
     ]
 )
 def test_parse_atom(text, expected):
-    assert parse_atom(lex(text)) == expected
+    atom = parse_atom(lex(text))
+    if hasattr(atom, "model_dump"):
+        assert atom.model_dump() == expected
+    else:
+        assert atom == expected
 
 
 @pytest.mark.parametrize(

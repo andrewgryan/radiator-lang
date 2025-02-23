@@ -16,6 +16,7 @@ class Kind(str, Enum):
     open_paren = "("
     close_paren = ")"
     operator = "+-/*^"
+    comma = ","
 
 
 class Token(BaseModel):

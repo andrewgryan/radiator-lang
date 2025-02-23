@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import Union
 from radiator.lexer import peek, consume, skip
 from radiator.token import is_whitespace, Kind
-from radiator.parser import parse_identifier, parse_number
+from radiator.parser import parse_identifier, parse_number, parse_call_args
 
 
 MIN_PRECEDENCE = 1
@@ -33,11 +33,22 @@ class BinaryOperation(BaseModel):
     op: Operator
 
 
+class Call(BaseModel):
+    identifier: str
+    args: list[str | int]
+
+
 def parse_atom(tokens):
     if peek(tokens).kind == Kind.digit:
         return parse_number(tokens)
     else:
-        return parse_identifier(tokens)
+        identifier = parse_identifier(tokens)
+        if peek(tokens) and peek(tokens).char == "(":
+            assert consume(tokens).char == "("
+            args = parse_call_args(tokens)
+            return Call(identifier=identifier, args=args)
+        else:
+            return identifier
 
 
 def parse_operator(tokens):
