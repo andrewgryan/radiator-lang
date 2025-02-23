@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import Union
 from radiator.lexer import peek, consume, skip
 from radiator.token import is_whitespace, Kind
-from radiator.parser import parse_identifier, parse_number, parse_call_args
+from radiator.parser import parse_identifier, parse_number, parse_call_args, assert_next
 
 
 MIN_PRECEDENCE = 1
@@ -28,14 +28,19 @@ class Operator(BaseModel):
 
 
 class BinaryOperation(BaseModel):
-    lhs: Union[int, str, "BinaryOperation"]
-    rhs: Union[int, str, "BinaryOperation"]
+    lhs: Union[int, str, "Call", "BinaryOperation"]
+    rhs: Union[int, str, "Call", "BinaryOperation"]
     op: Operator
 
 
 class Call(BaseModel):
     identifier: str
-    args: list[str | int]
+    args: list[Union[str, int, "Call"]]
+
+
+def peek_atom(tokens):
+    tok = peek(tokens)
+    return (tok.kind == Kind.digit) or (tok.kind == Kind.letter)
 
 
 def parse_atom(tokens):
@@ -44,11 +49,15 @@ def parse_atom(tokens):
     else:
         identifier = parse_identifier(tokens)
         if peek(tokens) and peek(tokens).char == "(":
-            assert consume(tokens).char == "("
-            args = parse_call_args(tokens)
+            assert_next(tokens, "(")
+            consume(tokens)
+            args = parse_call_args(tokens, parse_arg=parse_atom, peek_fn=peek_atom)
+            assert_next(tokens, ")")
+            consume(tokens)
             return Call(identifier=identifier, args=args)
         else:
             return identifier
+
 
 
 def parse_operator(tokens):

@@ -157,19 +157,6 @@ def parse_call(identifier, tokens):
     return Call(identifier=identifier, args=args)
 
 
-def parse_call_args(tokens):
-    args = []
-    while peek(tokens):
-        if peek(tokens).kind == Kind.digit:
-            args.append(parse_number(tokens))
-            if peek(tokens).kind == Kind.comma:
-                consume(tokens)
-                skip(tokens, is_whitespace)
-        else:
-            break
-    return args
-
-
 def parse_number(tokens):
     result = 0
     while peek(tokens) and peek(tokens).kind == Kind.digit:
@@ -177,3 +164,20 @@ def parse_number(tokens):
         result *= 10
         result += int(token.char)
     return result
+
+
+def peek_number(tokens):
+    return peek(tokens).kind == Kind.digit
+
+
+def parse_call_args(tokens, parse_arg=parse_number, peek_fn=peek_number):
+    args = []
+    while peek(tokens):
+        if peek_fn(tokens):
+            args.append(parse_arg(tokens))
+            if peek(tokens).kind == Kind.comma:
+                consume(tokens)
+                skip(tokens, is_whitespace)
+        else:
+            break
+    return args

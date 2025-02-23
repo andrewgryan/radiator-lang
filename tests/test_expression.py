@@ -23,7 +23,8 @@ def test_parse_operator(text, expected):
         ("foo", "foo"),
         ("123", 123),
         ("fn()", {"args": [], "identifier": "fn"}),
-        ("foo(1, 2)", {"args": [1, 2], "identifier": "foo"})
+        ("foo(1, 2)", {"args": [1, 2], "identifier": "foo"}),
+        ("foo(bar())", {"args": [{"args": [], "identifier": "bar"}], "identifier": "foo"})
     ]
 )
 def test_parse_atom(text, expected):
@@ -91,6 +92,13 @@ def test_parse_atom(text, expected):
                 "lhs": 1,
                 "op": {"associative": "both", "operation": "+", "precedence": 1},
                 "rhs": "bar"
+            }
+        ),
+        pytest.param(
+            "foo() + 9", {
+                "lhs": {"args": [], "identifier": "foo"},
+                "op": {"associative": "both", "operation": "+", "precedence": 1},
+                "rhs": 9
             }
         )
     ],
