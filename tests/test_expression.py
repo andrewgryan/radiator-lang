@@ -3,11 +3,16 @@ from radiator.lexer import lex
 from radiator.expression import parse_expression, parse_operator, parse_atom
 
 
+PLUS = {"associative": "both", "operation": "+", "precedence": 1}
+TIMES = {"associative": "both", "operation": "*", "precedence": 2}
+POWER = {"associative": "right", "operation": "^", "precedence": 3}
+
+
 @pytest.mark.parametrize(
     "text,expected",
     [
-        ("+", {"associative": "both", "operation": "+", "precedence": 1}),
-        ("*", {"associative": "both", "operation": "*", "precedence": 2}),
+        ("+", PLUS),
+        ("*", TIMES),
     ],
 )
 def test_parse_operator(text, expected):
@@ -48,10 +53,10 @@ def test_parse_atom(text, expected):
             "a + b + c",
             {
                 "lhs": "a",
-                "op": {"associative": "both", "operation": "+", "precedence": 1},
+                "op": PLUS,
                 "rhs": {
                     "lhs": "b",
-                    "op": {"associative": "both", "operation": "+", "precedence": 1},
+                    "op": PLUS,
                     "rhs": "c",
                 },
             },
@@ -61,7 +66,7 @@ def test_parse_atom(text, expected):
             "a + b",
             {
                 "lhs": "a",
-                "op": {"associative": "both", "operation": "+", "precedence": 1},
+                "op": PLUS,
                 "rhs": "b",
             },
             id="a + b",
@@ -70,7 +75,7 @@ def test_parse_atom(text, expected):
             "a * b",
             {
                 "lhs": "a",
-                "op": {"associative": "both", "operation": "*", "precedence": 2},
+                "op": TIMES,
                 "rhs": "b",
             },
             id="a * b",
@@ -80,10 +85,10 @@ def test_parse_atom(text, expected):
             {
                 "lhs": {
                     "lhs": "a",
-                    "op": {"associative": "both", "operation": "*", "precedence": 2},
+                    "op": TIMES,
                     "rhs": "b",
                 },
-                "op": {"associative": "both", "operation": "+", "precedence": 1},
+                "op": PLUS,
                 "rhs": "c",
             },
             id="a * b + c",
@@ -92,7 +97,7 @@ def test_parse_atom(text, expected):
             "1 + bar",
             {
                 "lhs": 1,
-                "op": {"associative": "both", "operation": "+", "precedence": 1},
+                "op": PLUS,
                 "rhs": "bar",
             },
         ),
@@ -100,7 +105,7 @@ def test_parse_atom(text, expected):
             "foo() + 9",
             {
                 "lhs": {"args": [], "identifier": "foo"},
-                "op": {"associative": "both", "operation": "+", "precedence": 1},
+                "op": PLUS,
                 "rhs": 9,
             },
         ),
@@ -109,13 +114,33 @@ def test_parse_atom(text, expected):
             {
                 "lhs": {
                     "lhs": 1,
-                    "op": {"associative": "both", "operation": "+", "precedence": 1},
+                    "op": PLUS,
                     "rhs": 2,
                 },
-                "op": {"associative": "both", "operation": "*", "precedence": 2},
+                "op": TIMES,
                 "rhs": 3,
             },
         ),
+        pytest.param(
+            "2 ^ 4",
+            {
+                "lhs": 2,
+                "op": POWER,
+                "rhs": 4
+            }
+        ),
+        pytest.param(
+            "2 ^ 3 ^ 4",
+            {
+                "lhs": 2,
+                "op": POWER,
+                "rhs": {
+                    "lhs": 3,
+                    "op": POWER,
+                    "rhs": 4
+                },
+            }
+        )
     ],
 )
 def test_parse_expression_associative(text, expected):
