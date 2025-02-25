@@ -119,8 +119,14 @@ def parse_expression(tokens, precedence=MIN_PRECEDENCE):
 
 def parse_identifier(tokens):
     id = ""
-    while peek(tokens) and peek(tokens).kind == Kind.letter:
-        id += consume(tokens).char
+    while peek(tokens):
+        token = peek(tokens)
+        if (token.kind == Kind.letter) or (token.kind == Kind.underscore):
+            id += consume(tokens).char
+        elif (token.kind == Kind.digit):
+            id += consume(tokens).char
+        else:
+            break
     return id
 
 

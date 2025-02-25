@@ -77,7 +77,7 @@ def test_parse_signature():
     text = "name :: () -> u8"
     actual = parser.parse_signature(lex(text))
     assert actual.identifier == "name"
-    assert actual.arg_list == []
+    assert actual.parameters == []
     assert actual.return_type.signed == False
     assert actual.return_type.bits == 8
 
@@ -85,20 +85,46 @@ def test_parse_signature():
 def test_parse_signature_given_args():
     text = "name :: (x: i32) -> i32"
     actual = parser.parse_signature(lex(text))
-    assert actual.arg_list[0].identifier == "x"
-    assert actual.arg_list[0].dtype.signed == True
-    assert actual.arg_list[0].dtype.bits == 32
+    assert actual.parameters[0].identifier == "x"
+    assert actual.parameters[0].dtype.signed == True
+    assert actual.parameters[0].dtype.bits == 32
 
 
-def test_parse_signature_given_multiple_args():
+@pytest.mark.parametrize("code,expected", [
+    ("name :: (x: i32, y: i32) -> i32", {
+        "identifier": "name",
+        "parameters": [
+            {"dtype": {"bits": 32, "signed": True}, "identifier": "x"},
+            {"dtype": {"bits": 32, "signed": True}, "identifier": "y"},
+        ],
+        "return_type": {
+            "bits": 32,
+            "signed": True
+        }
+    }),
+    ("name :: (a_b: i32) -> i32", {
+        "identifier": "name",
+        "parameters": [
+            {"dtype": {"bits": 32, "signed": True}, "identifier": "a_b"},
+        ],
+        "return_type": {
+            "bits": 32,
+            "signed": True
+        }
+    }),
+    ("x0 :: () -> i32", {
+        "identifier": "x0",
+        "parameters": [],
+        "return_type": {
+            "bits": 32,
+            "signed": True
+        }
+    })
+])
+def test_parse_signature_given_multiple_args(code, expected):
     text = "name :: (x: i32, y: i32) -> i32"
-    actual = parser.parse_signature(lex(text))
-    assert actual.arg_list[0].identifier == "x"
-    assert actual.arg_list[0].dtype.signed == True
-    assert actual.arg_list[0].dtype.bits == 32
-    assert actual.arg_list[1].identifier == "y"
-    assert actual.arg_list[1].dtype.signed == True
-    assert actual.arg_list[1].dtype.bits == 32
+    actual = parser.parse_signature(lex(code))
+    assert actual.model_dump() == expected
 
 
 def test_parse_dtype():
@@ -108,17 +134,17 @@ def test_parse_dtype():
     assert actual.bits == 32
 
 
-def test_parse_arg_given_u8():
+def test_parse_parameter_given_u8():
     text = "x :: u8"
-    actual = parser.parse_arg(lex(text))
+    actual = parser.parse_parameter(lex(text))
     assert actual.identifier == "x"
     assert actual.dtype.signed == False
     assert actual.dtype.bits == 8
 
 
-def test_parse_arg_given_i16():
+def test_parse_parameter_given_i16():
     text = "y :: i16"
-    actual = parser.parse_arg(lex(text))
+    actual = parser.parse_parameter(lex(text))
     assert actual.identifier == "y"
     assert actual.dtype.signed == True
     assert actual.dtype.bits == 16

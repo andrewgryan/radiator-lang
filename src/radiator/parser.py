@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from radiator.lexer import peek, consume, skip
+from radiator.lexer import peek, consume, skip, assert_next
 from radiator.token import Kind, is_whitespace
 from radiator.expression import (
     parse_expression,
@@ -19,14 +19,14 @@ class DataType(BaseModel):
     bits: int = 8
 
 
-class Arg(BaseModel):
+class Parameter(BaseModel):
     identifier: str
     dtype: DataType
 
 
 class Signature(BaseModel):
     identifier: str
-    arg_list: list[Arg]
+    parameters: list[Parameter]
     return_type: DataType
 
 
@@ -63,38 +63,43 @@ def parse_function(tokens):
 
 
 def parse_signature(tokens):
-    arg_list = []
+    parameters = []
     identifier = parse_identifier(tokens)
     skip(tokens, is_whitespace)
-    consume(tokens)  # :
-    consume(tokens)  # :
+    assert_next(tokens, ":")
+    consume(tokens)
+    assert_next(tokens, ":")
+    consume(tokens)
     skip(tokens, is_whitespace)
-    consume(tokens)  # (
+    assert_next(tokens, "(")
+    consume(tokens)
     while peek(tokens).char != ")":
-        arg = parse_arg(tokens)
-        arg_list.append(arg)
+        parameters.append(parse_parameter(tokens))
         skip(tokens, is_whitespace)
         if peek(tokens).char == ",":
             consume(tokens)  # ,
             skip(tokens, is_whitespace)
 
-    assert consume(tokens).char == ")"
+    assert_next(tokens, ")")
+    consume(tokens)
     skip(tokens, is_whitespace)
-    assert consume(tokens).char == "-"
-    assert consume(tokens).char == ">"
+    assert_next(tokens, "-")
+    consume(tokens)
+    assert_next(tokens, ">")
+    consume(tokens)
     skip(tokens, is_whitespace)
 
     return_type = parse_dtype(tokens)
-    return Signature(identifier=identifier, arg_list=arg_list, return_type=return_type)
+    return Signature(identifier=identifier, parameters=parameters, return_type=return_type)
 
 
-def parse_arg(tokens):
+def parse_parameter(tokens):
     identifier = parse_identifier(tokens)
     skip(tokens, is_whitespace)
     skip(tokens, lambda tok: tok.char == ":")
     skip(tokens, is_whitespace)
     dtype = parse_dtype(tokens)
-    return Arg(identifier=identifier, dtype=dtype)
+    return Parameter(identifier=identifier, dtype=dtype)
 
 
 def parse_dtype(tokens):
