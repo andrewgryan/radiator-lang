@@ -1,31 +1,32 @@
 import pytest
 from radiator.lexer import lex
-from radiator.expression import (
-    parse_expression,
-    parse_operator,
-    parse_atom
-)
+from radiator.expression import parse_expression, parse_operator, parse_atom
 
 
 @pytest.mark.parametrize(
-    "text,expected", [
+    "text,expected",
+    [
         ("+", {"associative": "both", "operation": "+", "precedence": 1}),
         ("*", {"associative": "both", "operation": "*", "precedence": 2}),
-    ]
+    ],
 )
 def test_parse_operator(text, expected):
     assert parse_operator(lex(text)).model_dump() == expected
 
 
 @pytest.mark.parametrize(
-    "text,expected", [
+    "text,expected",
+    [
         ("a", "a"),
         ("foo", "foo"),
         ("123", 123),
         ("fn()", {"args": [], "identifier": "fn"}),
         ("foo(1, 2)", {"args": [1, 2], "identifier": "foo"}),
-        ("foo(bar())", {"args": [{"args": [], "identifier": "bar"}], "identifier": "foo"})
-    ]
+        (
+            "foo(bar())",
+            {"args": [{"args": [], "identifier": "bar"}], "identifier": "foo"},
+        ),
+    ],
 )
 def test_parse_atom(text, expected):
     atom = parse_atom(lex(text))
@@ -80,7 +81,7 @@ def test_parse_atom(text, expected):
                 "lhs": {
                     "lhs": "a",
                     "op": {"associative": "both", "operation": "*", "precedence": 2},
-                    "rhs": "b"
+                    "rhs": "b",
                 },
                 "op": {"associative": "both", "operation": "+", "precedence": 1},
                 "rhs": "c",
@@ -88,19 +89,33 @@ def test_parse_atom(text, expected):
             id="a * b + c",
         ),
         pytest.param(
-            "1 + bar", {
+            "1 + bar",
+            {
                 "lhs": 1,
                 "op": {"associative": "both", "operation": "+", "precedence": 1},
-                "rhs": "bar"
-            }
+                "rhs": "bar",
+            },
         ),
         pytest.param(
-            "foo() + 9", {
+            "foo() + 9",
+            {
                 "lhs": {"args": [], "identifier": "foo"},
                 "op": {"associative": "both", "operation": "+", "precedence": 1},
-                "rhs": 9
-            }
-        )
+                "rhs": 9,
+            },
+        ),
+        pytest.param(
+            "(1 + 2) * 3",
+            {
+                "lhs": {
+                    "lhs": 1,
+                    "op": {"associative": "both", "operation": "+", "precedence": 1},
+                    "rhs": 2,
+                },
+                "op": {"associative": "both", "operation": "*", "precedence": 2},
+                "rhs": 3,
+            },
+        ),
     ],
 )
 def test_parse_expression_associative(text, expected):

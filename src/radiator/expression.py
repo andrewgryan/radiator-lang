@@ -47,6 +47,17 @@ def parse_atom(tokens):
     if peek(tokens).kind == Kind.digit:
         return parse_number(tokens)
     else:
+        # Expression in ()
+        if peek(tokens) and peek(tokens).char == "(":
+            assert_next(tokens, "(")
+            consume(tokens)
+            value = parse_expression(tokens)
+            skip(tokens, is_whitespace)
+            assert_next(tokens, ")")
+            consume(tokens)
+            return value
+
+        # Identifier OR function call()
         identifier = parse_identifier(tokens)
         if peek(tokens) and peek(tokens).char == "(":
             assert_next(tokens, "(")
@@ -57,7 +68,6 @@ def parse_atom(tokens):
             return Call(identifier=identifier, args=args)
         else:
             return identifier
-
 
 
 def parse_operator(tokens):
