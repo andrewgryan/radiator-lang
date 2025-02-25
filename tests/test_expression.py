@@ -121,26 +121,15 @@ def test_parse_atom(text, expected):
                 "rhs": 3,
             },
         ),
-        pytest.param(
-            "2 ^ 4",
-            {
-                "lhs": 2,
-                "op": POWER,
-                "rhs": 4
-            }
-        ),
+        pytest.param("2 ^ 4", {"lhs": 2, "op": POWER, "rhs": 4}),
         pytest.param(
             "2 ^ 3 ^ 4",
             {
                 "lhs": 2,
                 "op": POWER,
-                "rhs": {
-                    "lhs": 3,
-                    "op": POWER,
-                    "rhs": 4
-                },
-            }
-        )
+                "rhs": {"lhs": 3, "op": POWER, "rhs": 4},
+            },
+        ),
     ],
 )
 def test_parse_expression_associative(text, expected):

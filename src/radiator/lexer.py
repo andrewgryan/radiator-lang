@@ -61,3 +61,8 @@ def consume(tokens):
 def skip(tokens, is_skippable):
     while peek(tokens) and is_skippable(peek(tokens)):
         consume(tokens)
+
+
+def assert_next(tokens, char):
+    found = peek(tokens).char
+    assert found == char, f"Expected '{char}' found '{found}' instead."

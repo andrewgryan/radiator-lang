@@ -10,16 +10,16 @@ class IR(BaseModel):
         defs = []
         for fn in self.ast.functions:
             dfn = [f"{fn.signature.identifier}:"]
-            if isinstance(fn.block.expression.value, radiator.parser.Call):
+            if isinstance(fn.block.expression, radiator.parser.Call):
                 dfn += [
                     "    stp fp, lr, [sp, #-16]!",
                     "    mov fp, sp",
-                    f"    bl {fn.block.expression.value.identifier}",
+                    f"    bl {fn.block.expression.identifier}",
                     "    mov sp, fp",
                     "    ldp fp, lr, [sp], #16",
                 ]
             else:
-                dfn += [f"    mov x0, #{fn.block.expression.value}"]
+                dfn += [f"    mov x0, #{fn.block.expression}"]
             dfn += ["    ret", ""]
             defs += dfn
 

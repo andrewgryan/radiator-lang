@@ -1,8 +1,7 @@
 from pydantic import BaseModel
 from typing import Union
-from radiator.lexer import peek, consume, skip
+from radiator.lexer import peek, consume, skip, assert_next
 from radiator.token import is_whitespace, Kind
-from radiator.parser import parse_identifier, parse_number, parse_call_args, assert_next
 
 
 MIN_PRECEDENCE = 1
@@ -36,6 +35,9 @@ class BinaryOperation(BaseModel):
 class Call(BaseModel):
     identifier: str
     args: list[Union[str, int, "Call"]]
+
+
+Expression = Union[str, int, Call, BinaryOperation]
 
 
 def peek_atom(tokens):
@@ -110,3 +112,39 @@ def parse_expression(tokens, precedence=MIN_PRECEDENCE):
             return lhs
     else:
         return lhs
+
+
+# Parser functions
+
+
+def parse_identifier(tokens):
+    id = ""
+    while peek(tokens) and peek(tokens).kind == Kind.letter:
+        id += consume(tokens).char
+    return id
+
+
+def parse_number(tokens):
+    result = 0
+    while peek(tokens) and peek(tokens).kind == Kind.digit:
+        token = consume(tokens)
+        result *= 10
+        result += int(token.char)
+    return result
+
+
+def peek_number(tokens):
+    return peek(tokens).kind == Kind.digit
+
+
+def parse_call_args(tokens, parse_arg=parse_number, peek_fn=peek_number):
+    args = []
+    while peek(tokens):
+        if peek_fn(tokens):
+            args.append(parse_arg(tokens))
+            if peek(tokens).kind == Kind.comma:
+                consume(tokens)
+                skip(tokens, is_whitespace)
+        else:
+            break
+    return args

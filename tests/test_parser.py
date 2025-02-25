@@ -3,12 +3,12 @@ from radiator.token import is_whitespace
 from radiator.lexer import peek, lex
 from radiator.parser import (
     skip,
-    parse_expression,
     parse_block,
     parse_function,
     parse_ast,
 )
 from radiator import parser
+from radiator.expression import parse_expression
 
 
 def test_skip_whitespace():
@@ -20,40 +20,40 @@ def test_skip_whitespace():
 def test_parse_expression_given_number():
     text = "42"
     actual = parse_expression(lex(text))
-    assert actual.value == 42
+    assert actual == 42
 
 
 def test_parse_expression_given_call():
     text = "bar()"
     actual = parse_expression(lex(text))
-    assert actual.value.identifier == "bar"
+    assert actual.identifier == "bar"
 
 
 def test_parse_expression_given_call_arg():
     text = "bar(42)"
     actual = parse_expression(lex(text))
-    assert actual.value.identifier == "bar"
-    assert actual.value.args[0] == 42
+    assert actual.identifier == "bar"
+    assert actual.args[0] == 42
 
 
 def test_parse_block():
     text = "{  42  }"
     actual = parse_block(lex(text))
-    assert actual.expression.value == 42
+    assert actual.expression == 42
 
 
 def test_parse_function():
     text = "main :: () -> u8 {  42  }"
     actual = parse_function(lex(text))
     assert actual.signature.identifier == "main"
-    assert actual.block.expression.value == 42
+    assert actual.block.expression == 42
 
 
 def test_parse_ast():
     text = "main :: () -> u8 {  42  }"
     actual = parse_ast(lex(text))
     assert actual.functions[0].signature.identifier == "main"
-    assert actual.functions[0].block.expression.value == 42
+    assert actual.functions[0].block.expression == 42
 
 
 def test_parse_ast_given_multiple_functions():
@@ -68,9 +68,9 @@ bar :: () -> u8 {
 """
     actual = parse_ast(lex(text))
     assert actual.functions[0].signature.identifier == "main"
-    assert actual.functions[0].block.expression.value.identifier == "bar"
+    assert actual.functions[0].block.expression.identifier == "bar"
     assert actual.functions[1].signature.identifier == "bar"
-    assert actual.functions[1].block.expression.value == 5
+    assert actual.functions[1].block.expression == 5
 
 
 def test_parse_signature():
