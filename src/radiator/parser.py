@@ -40,10 +40,6 @@ class AST(BaseModel):
     entry_point: Call
 
 
-def parse(tokens):
-    return parse_ast(tokens)
-
-
 def parse_ast(tokens):
     functions = []
     while True:

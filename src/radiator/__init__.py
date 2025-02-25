@@ -42,5 +42,10 @@ class IR(BaseModel):
 
 def compile(code: str) -> IR:
     tokens = radiator.lexer.lex(code)
-    ast = radiator.parser.parse(tokens)
+    ast = radiator.parser.parse_ast(tokens)
     return IR(ast=ast)
+
+
+def parse(code: str) -> radiator.parser.AST:
+    tokens = radiator.lexer.lex(code)
+    return radiator.parser.parse_ast(tokens)
