@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 import radiator.lexer
 import radiator.parser
+from radiator.analyser import analyse
 
 
 class IR(BaseModel):
