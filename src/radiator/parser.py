@@ -90,7 +90,9 @@ def parse_signature(tokens):
     skip(tokens, is_whitespace)
 
     return_type = parse_dtype(tokens)
-    return Signature(identifier=identifier, parameters=parameters, return_type=return_type)
+    return Signature(
+        identifier=identifier, parameters=parameters, return_type=return_type
+    )
 
 
 def parse_parameter(tokens):

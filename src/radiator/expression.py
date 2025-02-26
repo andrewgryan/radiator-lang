@@ -123,7 +123,7 @@ def parse_identifier(tokens):
         token = peek(tokens)
         if (token.kind == Kind.letter) or (token.kind == Kind.underscore):
             id += consume(tokens).char
-        elif (token.kind == Kind.digit):
+        elif token.kind == Kind.digit:
             id += consume(tokens).char
         else:
             break

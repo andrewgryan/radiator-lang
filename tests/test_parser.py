@@ -90,37 +90,40 @@ def test_parse_signature_given_args():
     assert actual.parameters[0].dtype.bits == 32
 
 
-@pytest.mark.parametrize("code,expected", [
-    ("name :: (x: i32, y: i32) -> i32", {
-        "identifier": "name",
-        "parameters": [
-            {"dtype": {"bits": 32, "signed": True}, "identifier": "x"},
-            {"dtype": {"bits": 32, "signed": True}, "identifier": "y"},
-        ],
-        "return_type": {
-            "bits": 32,
-            "signed": True
-        }
-    }),
-    ("name :: (a_b: i32) -> i32", {
-        "identifier": "name",
-        "parameters": [
-            {"dtype": {"bits": 32, "signed": True}, "identifier": "a_b"},
-        ],
-        "return_type": {
-            "bits": 32,
-            "signed": True
-        }
-    }),
-    ("x0 :: () -> i32", {
-        "identifier": "x0",
-        "parameters": [],
-        "return_type": {
-            "bits": 32,
-            "signed": True
-        }
-    })
-])
+@pytest.mark.parametrize(
+    "code,expected",
+    [
+        (
+            "name :: (x: i32, y: i32) -> i32",
+            {
+                "identifier": "name",
+                "parameters": [
+                    {"dtype": {"bits": 32, "signed": True}, "identifier": "x"},
+                    {"dtype": {"bits": 32, "signed": True}, "identifier": "y"},
+                ],
+                "return_type": {"bits": 32, "signed": True},
+            },
+        ),
+        (
+            "name :: (a_b: i32) -> i32",
+            {
+                "identifier": "name",
+                "parameters": [
+                    {"dtype": {"bits": 32, "signed": True}, "identifier": "a_b"},
+                ],
+                "return_type": {"bits": 32, "signed": True},
+            },
+        ),
+        (
+            "x0 :: () -> i32",
+            {
+                "identifier": "x0",
+                "parameters": [],
+                "return_type": {"bits": 32, "signed": True},
+            },
+        ),
+    ],
+)
 def test_parse_signature_given_multiple_args(code, expected):
     text = "name :: (x: i32, y: i32) -> i32"
     actual = parser.parse_signature(lex(code))
