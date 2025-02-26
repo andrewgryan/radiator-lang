@@ -12,6 +12,7 @@ class Result(BaseModel):
 def analyse(ast):
     errors = []
     for fn in ast.functions:
-        msg = f"undefined symbol '{fn.block.expression}'"
-        errors.append(Error(msg=msg))
+        if not isinstance(fn.block.expression, int):
+            msg = f"undefined symbol '{fn.block.expression}'"
+            errors.append(Error(msg=msg))
     return Result(errors=errors)
