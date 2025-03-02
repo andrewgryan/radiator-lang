@@ -1,4 +1,5 @@
 import pytest
+import radiator
 from radiator.token import is_whitespace
 from radiator.lexer import peek, lex
 from radiator.parser import (
@@ -9,6 +10,17 @@ from radiator.parser import (
 )
 from radiator import parser
 from radiator.expression import parse_expression
+
+
+def test_parse():
+    code = ""
+    assert radiator.parse(code).model_dump() == {
+        "entry_point": {
+            "args": [],
+            "identifier": "main"
+        },
+        "functions": []
+    }
 
 
 def test_skip_whitespace():
