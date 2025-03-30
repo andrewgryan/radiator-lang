@@ -54,6 +54,29 @@ def test_parse_block():
     assert actual.expression == 42
 
 
+def test_parse_block_given_statements():
+    text = "{  x: u8 = 42; x  }"
+    actual = parse_block(lex(text))
+    assert actual.model_dump() == {
+        "statements": [],
+        "expression": "x"
+    }
+
+def test_parse_statement():
+    text = "x: u8 = 42;"
+    actual = parser.parse_statement(lex(text))
+    assert actual.model_dump() == {
+        "variable": {
+            "identifier": "x",
+            "type": {
+                "signed": False,
+                "bits": 8
+            }
+        },
+        "expression": 42
+    }
+    
+
 def test_parse_function():
     text = "main :: () -> u8 {  42  }"
     actual = parse_function(lex(text))

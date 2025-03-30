@@ -10,13 +10,27 @@ from radiator.expression import (
 )
 
 
-class Block(BaseModel):
-    expression: Expression
-
-
 class DataType(BaseModel):
     signed: bool = True
     bits: int = 8
+
+
+class Variable(BaseModel):
+    identifier: str
+    type: DataType
+
+
+class Assignment(BaseModel):
+    variable: Variable
+    expression: Expression
+
+
+Statement = Assignment
+
+
+class Block(BaseModel):
+    statements: list[Statement]
+    expression: Expression
 
 
 class Parameter(BaseModel):
@@ -116,10 +130,37 @@ def parse_block(tokens):
     else:
         return
     skip(tokens, is_whitespace)
+    statements = parse_statements(tokens)
+    skip(tokens, is_whitespace)
     expression = parse_expression(tokens)
     skip(tokens, is_whitespace)
     if peek(tokens).kind == Kind.close_brace:
         consume(tokens)
     else:
         pass  # TODO: syntax error handling
-    return Block(expression=expression)
+    return Block(expression=expression, statements=statements)
+
+
+def parse_statements(tokens):
+    return []
+
+
+def parse_statement(tokens):
+    return parse_assignment(tokens)
+
+
+def parse_assignment(tokens):
+    identifier = parse_identifier(tokens)
+    skip(tokens, is_whitespace)
+    skip(tokens, lambda tok: tok.char == ":")
+    skip(tokens, is_whitespace)
+    dtype = parse_dtype(tokens)
+    skip(tokens, is_whitespace)
+    assert_next(tokens, "=")
+    consume(tokens)
+    skip(tokens, is_whitespace)
+    expression = parse_expression(tokens)
+    return Assignment(
+        variable=Variable(identifier=identifier, type=dtype),
+        expression=expression,
+    )

@@ -1,0 +1,5 @@
+main :: () -> u8 {
+	message: u8[_] = "Hello, World!";
+	print(message);
+	0
+}
