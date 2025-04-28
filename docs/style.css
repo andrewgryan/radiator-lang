@@ -29,13 +29,13 @@
 }
 
 body {
- color: var(--clr-primary-a50);
+ color: var(--clr-primary-a0);
  background-color: var(--clr-surface-a0);
 }
 
 p {
-  color: var(--clr-primary-a0);
-  background-color: var(--clr-surface-a50);
+  color: var(--clr-primary-a10);
+  background-color: var(--clr-surface-a10);
 }
 
 body {
