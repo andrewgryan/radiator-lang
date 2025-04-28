@@ -33,6 +33,11 @@ body {
  background-color: var(--clr-surface-a0);
 }
 
+p {
+  color: var(--clr-primary-a0);
+  background-color: var(--clr-surface-a50);
+}
+
 body {
   font-family: system-ui;
 }
