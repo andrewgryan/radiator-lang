@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from radiator.lexer import peek, consume, skip, assert_next
-from radiator.token import Kind, is_whitespace
+from radiator.token import Token, Kind, is_whitespace
 from radiator.expression import (
     parse_expression,
     Expression,
@@ -8,6 +8,10 @@ from radiator.expression import (
     parse_number,
     Call,
 )
+
+
+class Comment(BaseModel):
+    text: str
 
 
 class DataType(BaseModel):
@@ -60,6 +64,11 @@ def parse_ast(tokens):
         skip(tokens, is_whitespace)
         if peek(tokens) is None:
             break
+        while True:
+            comment = parse_comment(tokens)
+            skip(tokens, is_whitespace)
+            if comment is None:
+                break
         function = parse_function(tokens)
         if isinstance(function, Function):
             functions.append(function)
@@ -164,3 +173,15 @@ def parse_assignment(tokens):
         variable=Variable(identifier=identifier, type=dtype),
         expression=expression,
     )
+
+
+def parse_comment(tokens: [Token]) -> Comment | None:
+    slashes = 0
+    while peek(tokens) and peek(tokens).char == "/":
+        slashes += 1
+        consume(tokens)
+    if slashes >= 2:
+        text = ""
+        while peek(tokens) and peek(tokens).char != "\n":
+            text += consume(tokens).char
+        return Comment(text=text)

@@ -108,6 +108,38 @@ bar :: () -> u8 {
     assert actual.functions[1].block.expression == 5
 
 
+def test_parse_ast_given_comment():
+    text = """
+    // MAIN
+    //
+    // A program that exits with status 0
+    main :: () -> u8 {
+        0
+    }
+    """
+    actual = parse_ast(lex(text))
+    assert actual.model_dump() == {
+        "entry_point": {
+            "args": [],
+            "identifier": "main"
+        },
+        "functions": [{
+            "block": {
+                "expression": 0, 
+                "statements": []
+            },
+            "signature":{
+                "identifier": "main",
+                "parameters": [],
+                "return_type": {
+                    "bits": 8,
+                    "signed": False
+                }
+            }
+        }]
+    }
+
+
 def test_parse_signature():
     text = "name :: () -> u8"
     actual = parser.parse_signature(lex(text))
@@ -186,3 +218,12 @@ def test_parse_parameter_given_i16():
     assert actual.identifier == "y"
     assert actual.dtype.signed == True
     assert actual.dtype.bits == 16
+
+
+@pytest.mark.parametrize("code,expected", [
+    ("// Comment!", {"text": " Comment!"}),
+    ("// Comment!\ny :: i16", {"text": " Comment!"})
+])
+def test_parse_comment(code, expected):
+    actual = parser.parse_comment(lex(code))
+    assert actual.model_dump() == expected
