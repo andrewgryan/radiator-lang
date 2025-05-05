@@ -14,7 +14,7 @@ app = typer.Typer()
 
 
 @app.command()
-def main(script: str, out: Annotated[str, typer.Option("-o", "--out")] = None) -> None:
+def main(script: str, out: Annotated[str, typer.Option("-o", "--out")] = "main") -> None:
     with open(script, "r") as stream:
         text = stream.read()
         code = radiator.compile(text).to_aarch64()
